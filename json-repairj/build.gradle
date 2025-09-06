@@ -1,0 +1,90 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'groovy' // test only
+    id 'me.champeau.jmh' version '0.7.3' // performance test
+}
+
+repositories {
+    mavenCentral()
+}
+
+group = 'org.json-repairj'
+
+dependencies {
+    implementation "com.google.guava:guava:33.4.6-jre"
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    compileOnly "org.projectlombok:lombok:1.18.38"
+    annotationProcessor "org.projectlombok:lombok:1.18.38"
+
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.1'
+    testImplementation 'org.assertj:assertj-core:3.21.0'
+    testImplementation 'org.apache.groovy:groovy:4.0.12'
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-4.0'
+
+    jmh 'org.openjdk.jmh:jmh-core:1.37'
+    jmh 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release.set(8)
+}
+
+
+publishing {
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+        mavenJava(MavenPublication) {
+
+            pom {
+                name = 'json-repairj'
+                description = 'A java library to repair broken JSON strings, particularly useful for handling malformed JSON output from Large Language Models.'
+                url = 'https://github.com/du00cs/json-repairj'
+                licenses {
+                    license {
+                        name = 'MIT'
+                        url = 'https://mit-license.org/'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'du00cs'
+                        name = 'Du Ninglin'
+                        email = 'du00cs@outlook.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git@github.com:du00cs/json-repairj.git'
+                    url = 'https://github.com/du00cs/json-repairj'
+                }
+            }
+        }
+    }
+}
