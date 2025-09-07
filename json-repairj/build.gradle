@@ -1,15 +1,19 @@
 plugins {
     id 'java-library'
-    id 'maven-publish'
-    id 'groovy' // test only
+    // test
+    id 'groovy'
     id 'me.champeau.jmh' version '0.7.3' // performance test
+    // publish
+    id 'maven-publish'
+    id 'signing'
 }
 
 repositories {
     mavenCentral()
 }
 
-group = 'org.json-repairj'
+// If I have 'json-repairj.org' site, then 'org.json-repairj' can be used
+group = 'io.github.du00cs'
 
 dependencies {
     implementation "com.google.guava:guava:33.4.6-jre"
@@ -52,8 +56,8 @@ publishing {
             name = "OSSRH"
             url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
             credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
+                username = System.getenv("OSSRH_USERNAME")
+                password = System.getenv("OSSRH_PASSWORD")
             }
         }
     }
@@ -87,4 +91,11 @@ publishing {
             }
         }
     }
+}
+
+signing {
+    def signingKey = findProperty("GPG_KEY")
+    def signingPassword = findProperty("GPG_PASSWORD")
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications.mavenJava
 }
