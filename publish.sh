@@ -15,7 +15,7 @@ tag="v${version}"
 
 git checkout -b "$version"
 
-echo "version=$version" >> gradle.properties
+echo "version=$version" > gradle.properties
 
 git add gradle.properties
 git commit -m "set version $version"

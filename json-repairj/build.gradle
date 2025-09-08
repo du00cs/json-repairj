@@ -52,6 +52,9 @@ tasks.withType(JavaCompile).configureEach {
     options.release.set(8)
 }
 
+tasks.withType(Javadoc) {
+    failOnError = false
+}
 
 publishing {
     publications {
@@ -89,6 +92,9 @@ publishing {
 }
 
 jreleaser {
+    environment {
+        gitRootSearch = true
+    }
     signing {
         active = 'ALWAYS'
         armored = true
