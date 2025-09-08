@@ -29,6 +29,15 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
+      # Cache JReleaser files
+      - name: Cache JReleaser
+        uses: actions/cache@v4
+        with:
+          path: json-repairj/build/jreleaser
+          key: ${{ runner.os }}-jreleaser
+          restore-keys: |
+            ${{ runner.os }}-jreleaser
+
       - name: release
         run: "./gradlew publish; ./gradlew jreleaserFullRelease"
         env:

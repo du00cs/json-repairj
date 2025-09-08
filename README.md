@@ -17,7 +17,7 @@ We will try to keep up to tags of the original project, just push/fire an issue 
 <dependency>
     <groupId>io.github.du00cs</groupId>
     <artifactId>json-repairj</artifactId>
-    <version></version>
+    <version>${jsonRepairjVersion}</version>
 </dependency>
 ```
 
