@@ -3,9 +3,9 @@ plugins {
     // test
     id 'groovy'
     id 'me.champeau.jmh' version '0.7.3' // performance test
-    // publish
+    // publish to maven central
     id 'maven-publish'
-    id 'signing'
+    id 'org.jreleaser' version '1.20.0'
 }
 
 repositories {
@@ -43,6 +43,9 @@ java {
     }
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+
+    withJavadocJar()
+    withSourcesJar()
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -51,22 +54,9 @@ tasks.withType(JavaCompile).configureEach {
 
 
 publishing {
-    repositories {
-        maven {
-            name = "OSSRH"
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials {
-                username = System.getenv("OSSRH_USERNAME")
-                password = System.getenv("OSSRH_PASSWORD")
-            }
-        }
-    }
     publications {
         maven(MavenPublication) {
             from components.java
-        }
-        mavenJava(MavenPublication) {
-
             pom {
                 name = 'json-repairj'
                 description = 'A java library to repair broken JSON strings, particularly useful for handling malformed JSON output from Large Language Models.'
@@ -91,11 +81,33 @@ publishing {
             }
         }
     }
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
 }
 
-signing {
-    def signingKey = System.getenv("GPG_KEY")
-    def signingPassword = System.getenv("GPG_PASSWORD")
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign publishing.publications.mavenJava
+jreleaser {
+    signing {
+        active = 'ALWAYS'
+        armored = true
+    }
+    release {
+        github {
+            repoOwner = 'du00cs'
+            overwrite = true
+        }
+    }
+    deploy {
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    stagingRepository('build/staging-deploy')
+                }
+            }
+        }
+    }
 }
